@@ -1,5 +1,6 @@
 from random import choice
 import os
+import sys
 import subprocess
 import urllib2
 import shutil
@@ -181,7 +182,8 @@ class Recipe(object):
         location = self.options['location']
         base_dir = self.buildout['buildout']['directory']
 
-        project_dir = os.path.join(base_dir, self.options['project'])
+        # the directory to hold the project
+        project_dir = os.path.join(base_dir, os.path.join('src', self.options['project']))
 
         download_dir = self.buildout['buildout']['download-cache']
         if not os.path.exists(download_dir):
@@ -200,6 +202,7 @@ class Recipe(object):
             # Extract and put the dir in its proper place
             self.install_release(version, download_dir, tarball, location)
 
+        
         self.options['setup'] = location
         development = zc.recipe.egg.Develop(self.buildout,
                                             self.options['recipe'],
@@ -211,6 +214,15 @@ class Recipe(object):
         requirements, ws = self.egg.working_set(['djangorecipe'])
 
         script_paths = []
+        
+        # add the installed django to the paths
+        sys.path.append(location)
+        
+        # if we don't have a directory for a project,
+        # we will probably need to create one
+        # Make it so.
+        if not os.path.exists(project_dir):
+            self.create_project(os.path.join(base_dir, 'src'))
 
         # Create the Django management script
         script_paths.extend(self.create_manage_script(extra_paths, ws))
@@ -223,6 +235,8 @@ class Recipe(object):
 
         # Make the wsgi and fastcgi scripts if enabled
         script_paths.extend(self.make_scripts(extra_paths, ws))
+        
+        
 
         return script_paths + [location]
 
@@ -268,12 +282,18 @@ class Recipe(object):
 
         # Only download when we don't yet have an archive
         if not os.path.exists(tarball):
-            download_url = 'http://www.djangoproject.com/download/%s/tarball/'
-            self.log.info("Downloading Django from: %s" % (
+            if self.options.has_key('download_url'):
+                download_url = self.options['download_url']
+                self.log.info("Downloading Django from: %s" % (
+                    download_url))
+            else:
+                download_url = 'http://www.djangoproject.com/download/%s/tarball/'
+                self.log.info("Downloading Django from: %s" % (
                     download_url % version))
+                download_url = download_url % version
 
             tarball_f = open(tarball, 'wb')
-            f = urllib2.urlopen(download_url % version)
+            f = urllib2.urlopen(download_url)
             tarball_f.write(f.read())
             tarball_f.close()
             f.close()
@@ -315,37 +335,55 @@ class Recipe(object):
             return []
 
 
-    def create_project(self, project_dir):
-        os.makedirs(project_dir)
+    def create_project(self, source_dir):
+        # create the project dir
+        #os.makedirs(project_dir)
+        os.makedirs(source_dir)
+        
+        existing_path = os.getcwd()
+        os.chdir(source_dir)
 
-        template_vars = {'secret': self.generate_secret()}
-        template_vars.update(self.options)
+        # use the inbuilt tools to create the project
+        from django.core.management.commands import startproject, startapp
+        start_project = startproject.Command()
+        start_project.handle_label(self.options['project'])
+        
+        # start the apps that are listed in the buildout
+        apps = self.options.get('apps', '').split()
+        start_app = startapp.Command()
+        for app in apps:
+            start_app.handle_label(app, os.path.join(source_dir, self.options['project']))
+        
+        #template_vars = {'secret': self.generate_secret()}
+        #template_vars.update(self.options)
 
-        self.create_file(
-            os.path.join(project_dir, 'development.py'),
-            development_settings, template_vars)
+        #self.create_file(
+            #os.path.join(project_dir, 'development.py'),
+            #development_settings, template_vars)
 
-        self.create_file(
-            os.path.join(project_dir, 'production.py'),
-            production_settings, template_vars)
+        #self.create_file(
+            #os.path.join(project_dir, 'production.py'),
+            #production_settings, template_vars)
 
-        self.create_file(
-            os.path.join(project_dir, 'urls.py'),
-            urls_template, template_vars)
+        #self.create_file(
+            #os.path.join(project_dir, 'urls.py'),
+            #urls_template, template_vars)
 
-        self.create_file(
-            os.path.join(project_dir, 'settings.py'),
-            settings_template, template_vars)
+        #self.create_file(
+            #os.path.join(project_dir, 'settings.py'),
+            #settings_template, template_vars)
 
-        # Create the media and templates directories for our
-        # project
-        os.mkdir(os.path.join(project_dir, 'media'))
-        os.mkdir(os.path.join(project_dir, 'templates'))
+        ## Create the media and templates directories for our
+        ## project
+        #os.mkdir(os.path.join(project_dir, 'media'))
+        #os.mkdir(os.path.join(project_dir, 'templates'))
 
-        # Make the settings dir a Python package so that Django
-        # can load the settings from it. It will act like the
-        # project dir.
-        open(os.path.join(project_dir, '__init__.py'), 'w').close()
+        ## Make the settings dir a Python package so that Django
+        ## can load the settings from it. It will act like the
+        ## project dir.
+        #open(os.path.join(project_dir, '__init__.py'), 'w').close()
+        
+        os.chdir(existing_path)
 
     def make_scripts(self, extra_paths, ws):
         scripts = []
@@ -362,7 +400,7 @@ class Recipe(object):
                         [('%s.%s' % (self.options.get('control-script',
                                                       self.name),
                                      protocol),
-                          'djangorecipe.%s' % protocol, 'main')],
+                          'isotoma.recipe.django.%s' % protocol, 'main')],
                         ws,
                         self.options['executable'],
                         self.options['bin-directory'],
@@ -408,6 +446,11 @@ class Recipe(object):
                        self.buildout['buildout']['directory']
                        ]
 
+        # Add the project that we are creating
+        if self.options.has_key('project'):
+            project_src_path = os.path.join(self.buildout['buildout']['cwd'], 'src')
+            extra_paths.append(project_src_path)
+        
         # Add libraries found by a site .pth files to our extra-paths.
         if 'pth-files' in self.options:
             import site
