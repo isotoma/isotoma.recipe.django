@@ -378,9 +378,12 @@ class Recipe(object):
                         'app_fqn': self.generate_installed_apps(),
                         'project_name': self.options['project']}
         
+        # Create the settings files for the project
         self.create_file(os.path.join(project_dir, 'settings.py'), settings_template, template_vars, overwrite = True)
         self.create_file(os.path.join(project_dir, 'production.py'), production_settings_template, template_vars)
         
+        # Create the static directory
+        os.makedirs(os.path.join(project_dir, 'static'))
 
         #self.create_file(
             #os.path.join(project_dir, 'development.py'),
