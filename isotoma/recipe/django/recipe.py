@@ -214,6 +214,19 @@ def return_500(request):
 
 """
 
+setup_py_template = """
+from setuptools import setup
+
+setup(
+    name='%(project_name)s',
+    version='0.0.1',
+    packages=[],
+    zip_safe=False,
+    include_package_data=True,
+)
+
+"""
+
 class Recipe(object):
     def __init__(self, buildout, name, options):
         self.log = logging.getLogger(name)
@@ -449,6 +462,9 @@ class Recipe(object):
         
         # Create the urls file
         self.create_file(os.path.join(project_dir, 'urls.py'), urls_template, overwrite = True, format = False)
+        
+        # Create the setup.py for transforming the project to an egg
+        self.create_file(os.path.join(source_dir, 'setup.py'), setup_py_template, template_vars)
         
         os.chdir(existing_path)
 
