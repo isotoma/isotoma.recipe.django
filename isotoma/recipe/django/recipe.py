@@ -154,6 +154,66 @@ SERVE_STATIC = False
 MEDIA_URL = ''
 """
 
+urls_template = """
+# $Id$
+
+# Urls
+__author__ = 'Forename Surname <forename@isotoma.com>'
+__docformat__ = 'restructuredtext en'
+__version__ = '$Revision$'[11:-2]
+
+from django.conf.urls.defaults import *
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseNotFound, HttpResponseServerError
+from django.template.loader import render_to_string
+
+# Uncomment the next two lines to enable the admin:
+# from django.contrib import admin
+# admin.autodiscover()
+
+urlpatterns = patterns('',
+
+    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
+    # to INSTALLED_APPS to enable admin documentation:
+    # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+    # Uncomment the next line to enable the admin:
+    # (r'^admin/', include(admin.site.urls)),
+        
+    # Prevent search engine spiders from generating 404s when looking for a 
+    # robots.txt. Obviously remove these if using actual files
+    # (This way is less efficient than doing it via server config. 
+    # Keeps it in-app though.)
+    (r'^robots\.txt$', lambda r: HttpResponse("", mimetype="text/plain")),
+	
+    # Redirect a request for favicon.ico from the virtual root to where it 
+    # actually is. Many user agents (RIM based blackberry browsers, old 
+    # versions of IE etc) lazily look in the root first, raising a 404
+    (r'^favicon\.ico$', lambda r: HttpResponseRedirect('/static/images/favicon.ico')),
+)
+
+# Serve static content through Django.
+# (This way is less efficient than having the web server do it and unless 
+# there is a decent caching layer, SERVE_STATIC should be False for production)
+if settings.SERVE_STATIC:
+    urlpatterns += patterns('',
+        (r'^static/(?P<path>.*)$', 'django.views.static.serve', {
+            'document_root': settings.MEDIA_ROOT }),
+    )
+
+# We can also redirect to templates wherever we like here.
+handler404 = '%s.return_404' % (settings.ROOT_URLCONF,)
+handler500 = '%s.return_500' % (settings.ROOT_URLCONF,)
+
+def return_404(request):
+    return HttpResponseNotFound(render_to_string("errors/404.html"))
+
+def return_500(request):
+    return HttpResponseServerError(render_to_string("errors/500.html"))
+
+"""
+
 class Recipe(object):
     def __init__(self, buildout, name, options):
         self.log = logging.getLogger(name)
@@ -384,32 +444,11 @@ class Recipe(object):
         
         # Create the static directory
         os.makedirs(os.path.join(project_dir, 'static'))
-
-        #self.create_file(
-            #os.path.join(project_dir, 'development.py'),
-            #development_settings, template_vars)
-
-        #self.create_file(
-            #os.path.join(project_dir, 'production.py'),
-            #production_settings, template_vars)
-
-        #self.create_file(
-            #os.path.join(project_dir, 'urls.py'),
-            #urls_template, template_vars)
-
-        #self.create_file(
-            #os.path.join(project_dir, 'settings.py'),
-            #settings_template, template_vars)
-
-        ## Create the media and templates directories for our
-        ## project
-        #os.mkdir(os.path.join(project_dir, 'media'))
-        #os.mkdir(os.path.join(project_dir, 'templates'))
-
-        ## Make the settings dir a Python package so that Django
-        ## can load the settings from it. It will act like the
-        ## project dir.
-        #open(os.path.join(project_dir, '__init__.py'), 'w').close()
+        # Create the templates directory
+        os.makedirs(os.path.join(project_dir, 'templates'))
+        
+        # Create the urls file
+        self.create_file(os.path.join(project_dir, 'urls.py'), urls_template, overwrite = True, format = False)
         
         os.chdir(existing_path)
 
@@ -526,12 +565,15 @@ class Recipe(object):
             cmd, shell=True, stdout=output, **kwargs)
         return command.wait()
 
-    def create_file(self, file, template, options, overwrite = False):
+    def create_file(self, file, template, options = {}, overwrite = False, format = True):
         if not overwrite and os.path.exists(file):
             return
 
         f = open(file, 'w')
-        f.write(template % options)
+        if format:
+            f.write(template % options)
+        else:
+            f.write(template)
         f.close()
         
     def append_file(self, file, template, options):
