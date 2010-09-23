@@ -46,31 +46,35 @@ __author__ = 'Forename Surname <forename@isotoma.com>'
 __docformat__ = 'restructuredtext en'
 __version__ = '$Revision$'[11:-2]
 
-import logging
 import os
-import platform
-import sys
-
-from django.utils.importlib import import_module
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 SERVE_STATIC = True
 
 ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
+    ('Your Name', 'your_email@domain.com'),
 )
 
 MANAGERS = ADMINS
 
-SYSTEM_EMAIL = "noreply@isotoma.com"
+DATABASES = {
+    'default': {
+        'ENGINE': '', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': '',                      # Or path to database file if using sqlite3.
+        'USER': '',                      # Not used with sqlite3.
+        'PASSWORD': '',                  # Not used with sqlite3.
+        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+    }
+}
 
-DATABASE_ENGINE = ''           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = ''             # Or path to database file if using sqlite3.
-DATABASE_USER = ''             # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+# Project settings
+DATE_FORMAT = "D, d M Y \\a\\t H:i"
+
+# Django contrib.auth settings
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -111,15 +115,17 @@ SECRET_KEY = '%(secret)s'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
-    'django.template.loaders.app_directories.load_template_source',
-#     'django.template.loaders.eggs.load_template_source',
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+#     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 TEMPLATE_DIRS = (
@@ -141,6 +147,7 @@ try:
     from local_settings import *
 except ImportError:
     pass
+
 
 
 
@@ -275,6 +282,7 @@ class Recipe(object):
 
         # the directory to hold the project
         project_dir = os.path.join(base_dir, os.path.join('src', self.options['project']))
+        print project_dir
 
         download_dir = self.buildout['buildout']['download-cache']
         if not os.path.exists(download_dir):
@@ -302,7 +310,7 @@ class Recipe(object):
         del self.options['setup']
 
         extra_paths = self.get_extra_paths()
-        requirements, ws = self.egg.working_set(['djangorecipe'])
+        requirements, ws = self.egg.working_set(['isotoma.recipe.django'])
 
         script_paths = []
         
@@ -394,7 +402,7 @@ class Recipe(object):
         project = self.options.get('projectegg', self.options['project'])
         return zc.buildout.easy_install.scripts(
             [(self.options.get('control-script', self.name),
-              'djangorecipe.manage', 'main')],
+              'isotoma.recipe.django.manage', 'main')],
             ws, self.options['executable'], self.options['bin-directory'],
             extra_paths = extra_paths,
             arguments= "'%s.%s'" % (project,
@@ -404,7 +412,7 @@ class Recipe(object):
         project = self.options.get('projectegg', self.options['project'])
         return zc.buildout.easy_install.scripts(
             [(self.options.get('admin-script', self.name + "-admin"),
-              'djangorecipe.admin', 'main')],
+              'isotoma.recipe.django.admin', 'main')],
             ws, self.options['executable'], self.options['bin-directory'],
             extra_paths = extra_paths)
 
@@ -414,7 +422,7 @@ class Recipe(object):
         if apps:
             return zc.buildout.easy_install.scripts(
                 [(self.options.get('testrunner', 'test'),
-                  'djangorecipe.test', 'main')],
+                  'isotoma.recipe.django.test', 'main')],
                 working_set, self.options['executable'],
                 self.options['bin-directory'],
                 extra_paths = extra_paths,
@@ -560,7 +568,7 @@ class Recipe(object):
             self.svn_update(self.options['location'], self.options['version'])
 
         extra_paths = self.get_extra_paths()
-        requirements, ws = self.egg.working_set(['djangorecipe'])
+        requirements, ws = self.egg.working_set(['isotoma.recipe.django'])
         # Create the Django management script
         self.create_manage_script(extra_paths, ws)
         
