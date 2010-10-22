@@ -607,6 +607,13 @@ class Recipe(object):
         apps = self.options['apps'].split()
         app_list = []
         for app in apps:
+            # is quoted as a string, so add quotes
+            # is fqn, so needs project prepending
             app_list.append('\'' + self.options['project'] + '.' + app + '\'')
             
+        if self.options.has_key('external_apps'):
+            external_apps = self.options['external_apps'].split()
+            for app in external_apps:
+                # quote directly as a string
+                app_list.append('\'' + app + '\'')
         return ','.join(app_list)

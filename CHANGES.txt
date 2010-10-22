@@ -1,6 +1,18 @@
 Changes
 =======
 
+1.2.1
+-----
+
+- Documentation updated
+- Settings file updated for new version (Django 1.2 multi-database style settings)
+- Adds apps to installed apps in the settings
+- Creates a test runner that can run the created apps
+- Creates an initial setup.py for the app
+- Creates a urls.py with sensible defaults, including serving static files in debug mode
+- Creates a settings.py and production.py heirachy, to enable settings overriding
+- Can download django from a specific URL
+
 1.0
 ---
 

@@ -13,22 +13,23 @@ subversion checkout (by using `trunk` instead of a version number.
 You can see an example of how to use the recipe below::
 
   [buildout]
-  parts = satchmo django
-  eggs = ipython
-
-  [satchmo]
-  recipe = gocept.download
-  url = http://www.satchmoproject.com/snapshots/satchmo-0.6.tar.gz
-  md5sum = 659a4845c1c731be5cfe29bfcc5d14b1
+  parts = django
+  eggs = south
+  versions = versions
 
   [django]
-  recipe = djangorecipe
-  version = trunk
+  recipe = isotoma.recipe.django 
+  version = 1.2.3
   settings = development
   eggs = ${buildout:eggs}
-  extra-paths =
-    ${satchmo:location}
+  projectegg = ${django:project}
   project = dummyshop
+  apps = testapp
+  external_apps = south
+
+  [versions]
+  south = 0.7.2
+  
 
 
 Supported options
@@ -68,6 +69,9 @@ download-cache
   Set this to a folder somewhere on you system to speed up
   installation. The recipe will use this folder as a cache for a
   downloaded version of Django.
+
+download-url
+  Url to use to download Django, if you have a local copy, etc.
 
 extra-paths
   All paths specified here will be used to extend the default Python
@@ -151,7 +155,7 @@ The next example shows you how to use some more of the options::
     http://django-mptt.googlecode.com/svn/trunk/ django-mptt
 
   [django]
-  recipe = djangorecipe
+  recipe = isotoma.recipe.django
   version = trunk
   settings = development
   project = exampleproject
@@ -184,8 +188,8 @@ path::
   urls		= http://svn.pinaxproject.com/pinax/tags/0.5.1rc1	pinax
 
   [myproject]
-  recipe	= djangorecipe
-  version	= 1.0.2
+  recipe	= isotoma.recipe.django
+  version	= 1.2.3
   eggs		= PIL
   project	= myproject
   settings	= settings
@@ -213,7 +217,7 @@ generated script use something like::
   executable = /some/special/python
 
   [myproject]
-  recipe	= djangorecipe
+  recipe	= isotoma.recipe.django
   version	= 1.0.2
   project	= myproject
   python	= special-python
