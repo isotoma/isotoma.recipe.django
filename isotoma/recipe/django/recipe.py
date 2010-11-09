@@ -455,6 +455,7 @@ class Recipe(object):
         # Create the settings files for the project
         self.create_file(os.path.join(project_dir, 'settings.py'), settings_template, template_vars, overwrite = True)
         self.create_file(os.path.join(project_dir, 'production.py'), production_settings_template, template_vars)
+        self.create_file(os.path.join(project_dir, 'staging.py'), production_settings_template, template_vars)
         
         # Create the static directory
         os.makedirs(os.path.join(project_dir, 'static'))
