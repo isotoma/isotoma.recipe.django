@@ -533,8 +533,9 @@ class Recipe(object):
 
         # Add the project that we are creating
         if self.options.has_key('project'):
-            project_src_path = os.path.join(self.buildout['buildout']['cwd'], 'src')
-            extra_paths.append(project_src_path)
+            
+            project_src_path = [os.path.join(self.buildout['buildout']['cwd'], 'src'), os.path.join(self.buildout['buildout']['cwd'], 'src', self.options['project']),]
+            extra_paths.extend(project_src_path)
         
         # Add libraries found by a site .pth files to our extra-paths.
         if 'pth-files' in self.options:

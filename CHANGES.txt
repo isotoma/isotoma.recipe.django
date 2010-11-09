@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.2.2
+-----
+
+- Added the creation of staging.py for staging environment deployments
+- The project path is now correctly added to the buildout
+
 1.2.1
 -----
 
