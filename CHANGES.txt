@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.2.3
+-----
+
+- Added the server_email buildout setting.
+  Will set SERVER_EMAIL in the settings.py, so email can be correctly sent out from the server
+
 1.2.2
 -----
 

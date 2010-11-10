@@ -106,6 +106,9 @@ ADMIN_MEDIA_PREFIX = '/media/'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '%(secret)s'
 
+# Email sent from the server (debug stack traces, etc) will use this address
+SERVER_EMAIL = '%(server_email)s'
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -450,7 +453,8 @@ class Recipe(object):
         
         template_vars = {'secret': self.generate_secret(),
                         'app_fqn': self.generate_installed_apps(),
-                        'project_name': self.options['project']}
+                        'project_name': self.options['project'],
+                        'server_email': self.options['server_email']}
         
         # Create the settings files for the project
         self.create_file(os.path.join(project_dir, 'settings.py'), settings_template, template_vars, overwrite = True)
