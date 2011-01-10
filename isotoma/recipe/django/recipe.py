@@ -5,6 +5,8 @@ import sys
 import zc.recipe.egg
 from zc.buildout import easy_install
 
+from jinja2 import Template, Environment, PackageLoader
+
 class Recipe(object):
     """ A buildout recipe to install django, and configure a project """
     
@@ -18,10 +20,13 @@ class Recipe(object):
         # set the options that we've been passed so we can get them when we install
         self.buildout = buildout
         self.name = name
-        self.options = options
+        self.options = options        
         
         # set the paths that we'll need
         self.options['bin-directory'] = buildout['buildout']['bin-directory'] # where the control scripts are going to live
+        
+        # template environment
+        self.template_environment = Environment(loader=PackageLoader('isotoma.recipe.django', 'templates'))
         
     def install(self):
         """ Create and set up the project """
@@ -140,12 +145,24 @@ class Recipe(object):
         Arguments:
         path - Path to the file to create
         template - Path to the template file
-        template_vars - Variables to use in the template
+        template_vars - Variables to use in the template as a dictionary
         
         Returns a path to the created file"""
         
         self.log.info("Creating %s from template %s" % (path, template))
         
+        # get the template from the loader (and directory)
+        loaded_template = self.template_environment.get_template(template)
+        
+        # render the template given the data that we have
+        rendered_template = loaded_template.render(template_vars)
+        
+        # save the rendered template where we were told to
+        output_file = open(path, 'w')
+        output_file.write(rendered_template)
+        output_file.close()
+        
+        # return a path to the file
         return path
     
         
