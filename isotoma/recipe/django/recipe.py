@@ -39,6 +39,8 @@ class Recipe(object):
         for app in apps:
             self.create_app(project_dir, app)
             
+        # now we have a project, we need to create some settings files and such like
+            
         # install the control scripts for django
         self.install_scripts()
         
@@ -92,6 +94,10 @@ class Recipe(object):
         project = startproject.Command()
         project.handle_label(project_name)
         
+        # now we remove the settings.py, as we're going to recreate it
+        self.log.info("Removing default settings.py from project")
+        os.remove(os.path.join(project_dir, 'settings.py'))
+        
         # change back to the old directory, so we don't screw anyone else up
         os.chdir(existing_path)
         
@@ -127,5 +133,19 @@ class Recipe(object):
         self.log.info("Done creating app: %s" % app_name)
         
         return app_dir
+    
+    def create_file(self, path, template, template_vars):
+        """ Create a file on the filesystem
+        
+        Arguments:
+        path - Path to the file to create
+        template - Path to the template file
+        template_vars - Variables to use in the template
+        
+        Returns a path to the created file"""
+        
+        self.log.info("Creating %s from template %s" % (path, template))
+        
+        return path
     
         

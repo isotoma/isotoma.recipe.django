@@ -32,7 +32,8 @@ setup(name='isotoma.recipe.django',
       install_requires=[
         'zc.buildout',
         'zc.recipe.egg',
-        'django'
+        'django',
+        'jinja2'
       ],
       entry_points="""
       # -*- Entry points: -*-
