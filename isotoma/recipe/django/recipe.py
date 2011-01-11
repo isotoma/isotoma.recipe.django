@@ -162,10 +162,10 @@ class Recipe(object):
         os.makedirs(os.path.join(project_dir, 'templates'))
         
         # Create the urls file
-        self.create_file(os.path.join(project_dir, 'urls.py'), 'urls.tmpl', overwrite = True, format = False)
+        self._create_file(os.path.join(project_dir, 'urls.py'), 'urls.tmpl', overwrite = True, format = False)
         
         # Create the setup.py for transforming the project to an egg
-        self.create_file(os.path.join(source_dir, 'setup.py'), 'setup.tmpl', template_vars)
+        self._create_file(os.path.join(source_dir, 'setup.py'), 'setup.tmpl', template_vars)
 
     
     def _create_file(self, path, template, template_vars):
