@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from random import choice
 
 import zc.recipe.egg
 from zc.buildout import easy_install
@@ -37,7 +38,7 @@ class Recipe(object):
         project_dir = os.path.join('src', self.options['project'])
         
         # this takes the src_dir as it creates the project folder for us
-        project = self.create_project(src_dir, self.options['project'])
+        project, new_project = self.create_project(src_dir, self.options['project'])
             
         # now we have a project, we need to create any apps that we've been given
         apps = self.options.get('apps', '').split()
@@ -45,7 +46,8 @@ class Recipe(object):
             self.create_app(project_dir, app)
             
         # now we have a project, we need to create some settings files and such like
-        self.create_project_files(project_dir)
+        if new_project:
+            self.create_project_files(project_dir)
             
         # install the control scripts for django
         self.install_scripts()
@@ -84,7 +86,7 @@ class Recipe(object):
         project_dir = os.path.join(src_dir, project_name)
         if os.path.exists(project_dir):
             self.log.info("Project %s already exists" % project_name)
-            return project_dir
+            return project_dir, False
         
         self.log.info("Creating project: %s in %s" % (project_name, src_dir))
         
@@ -109,7 +111,7 @@ class Recipe(object):
         
         self.log.info("Done creating project")
         
-        return src_dir
+        return src_dir, True
     
     def create_app(self, project_dir, app_name):
         """ Create an app in the project
@@ -143,14 +145,27 @@ class Recipe(object):
     def create_project_files(self, project_dir):
         """ Create the files that we need to run the project """
         
+        # get the variables that we'll need for the templated files
         template_vars = {'secret': self._generate_secret(),
                 'app_fqn': self._generate_installed_apps(),
                 'project_name': self.options['project'],
                 'server_email': self.options['server_email']}
         
+        # create the various settings files that we'll need in a project
         self._create_file(os.path.join(project_dir, 'settings.py'), 'settings.tmpl', template_vars)
         self._create_file(os.path.join(project_dir, 'staging.py'), 'staging.tmpl', template_vars)
         self._create_file(os.path.join(project_dir, 'production.py'), 'production.tmpl', template_vars)
+        
+        # Create the static directory
+        os.makedirs(os.path.join(project_dir, 'static'))
+        # Create the templates directory
+        os.makedirs(os.path.join(project_dir, 'templates'))
+        
+        # Create the urls file
+        self.create_file(os.path.join(project_dir, 'urls.py'), 'urls.tmpl', overwrite = True, format = False)
+        
+        # Create the setup.py for transforming the project to an egg
+        self.create_file(os.path.join(source_dir, 'setup.py'), 'setup.tmpl', template_vars)
 
     
     def _create_file(self, path, template, template_vars):
