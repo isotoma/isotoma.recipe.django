@@ -45,6 +45,7 @@ class Recipe(object):
             self.create_app(project_dir, app)
             
         # now we have a project, we need to create some settings files and such like
+        self.create_project_files(project_dir)
             
         # install the control scripts for django
         self.install_scripts()
@@ -139,7 +140,20 @@ class Recipe(object):
         
         return app_dir
     
-    def create_file(self, path, template, template_vars):
+    def create_project_files(self, project_dir):
+        """ Create the files that we need to run the project """
+        
+        template_vars = {'secret': self._generate_secret(),
+                'app_fqn': self._generate_installed_apps(),
+                'project_name': self.options['project'],
+                'server_email': self.options['server_email']}
+        
+        self._create_file(os.path.join(project_dir, 'settings.py'), 'settings.tmpl', template_vars)
+        self._create_file(os.path.join(project_dir, 'staging.py'), 'staging.tmpl', template_vars)
+        self._create_file(os.path.join(project_dir, 'production.py'), 'production.tmpl', template_vars)
+
+    
+    def _create_file(self, path, template, template_vars):
         """ Create a file on the filesystem
         
         Arguments:
@@ -165,4 +179,29 @@ class Recipe(object):
         # return a path to the file
         return path
     
+    def _generate_installed_apps(self):
+        """ Create a string of the installed apps, from the buildout config """
+        apps = self.options['apps'].split()
+        app_list = []
+        for app in apps:
+            # is quoted as a string, so add quotes
+            # is fqn, so needs project prepending
+            app_list.append('\'' + self.options['project'] + '.' + app + '\'')
+
+        if self.options.has_key('external_apps'):
+            external_apps = self.options['external_apps'].split()
+            for app in external_apps:
+                # quote directly as a string
+                app_list.append('\'' + app + '\'')
+        return ',\n'.join(app_list)
+
+    
+    def _generate_secret(self):
+        """ Generate a secret for the django settings file 
+        
+        Returns a 50 char string of the secret
+        """
+        chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+        return ''.join([choice(chars) for i in range(50)])
+
         
