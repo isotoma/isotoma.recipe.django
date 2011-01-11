@@ -50,11 +50,11 @@ class Recipe(object):
             self.create_project_files(project_dir, src_dir)
             
         # install the control scripts for django
-        self.install_scripts()
+        self.install_scripts(src_dir, project_dir)
         
         return self.options.created()
     
-    def install_scripts(self):
+    def install_scripts(self, source_dir, project_dir):
         """ Install the control scripts that we need """
         
         # get the paths that we need
@@ -67,6 +67,15 @@ class Recipe(object):
         # use the working set to correctly create the scripts with the correct python path
         ws = easy_install.working_set(["isotoma.recipe.django"], sys.executable, egg_paths)
         easy_install.scripts([('django-admin', "django.core.management", "execute_from_command_line")], ws, sys.executable, path)
+        
+        #easy_install.develop(source_dir, self.buildout["buildout"]["develop-eggs-directory"])
+        #easy_install.install([self.name], self.buildout["buildout"]["eggs-directory"])
+        
+        # this is a bit nasty
+        # we need to add the project to the working set so we can import from it
+        # so we're adding it's directory as an extra_path, as egg installing it doesn't seem to be much success
+        # install the project script ('manage.py')
+        easy_install.scripts([('django', 'django.core.management', 'execute_manager')], ws, sys.executable, path, arguments='settings', initialization="import settings", extra_paths = [os.path.realpath(project_dir)])
         
         # add the created scripts to the buildout installed stuff, so they get removed correctly
         self.options.created(os.path.join(path, 'django-admin'))

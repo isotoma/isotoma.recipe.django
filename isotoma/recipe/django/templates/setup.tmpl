@@ -3,7 +3,8 @@ from setuptools import setup
 setup(
     name='{{ project_name }}',
     version='0.0.1',
-    packages=[],
+    packages=['{{ project_name }}'],
+    package_dir = {'{{ project_name }}':'{{ project_name }}'},
     zip_safe=False,
     include_package_data=True,
 )
