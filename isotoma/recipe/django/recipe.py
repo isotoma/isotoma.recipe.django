@@ -47,7 +47,7 @@ class Recipe(object):
             
         # now we have a project, we need to create some settings files and such like
         if new_project:
-            self.create_project_files(project_dir)
+            self.create_project_files(project_dir, src_dir)
             
         # install the control scripts for django
         self.install_scripts()
@@ -142,7 +142,7 @@ class Recipe(object):
         
         return app_dir
     
-    def create_project_files(self, project_dir):
+    def create_project_files(self, project_dir, source_dir):
         """ Create the files that we need to run the project """
         
         # get the variables that we'll need for the templated files
