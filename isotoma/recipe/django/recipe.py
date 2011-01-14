@@ -27,6 +27,7 @@ class Recipe(object):
         self.options['bin-directory'] = buildout['buildout']['bin-directory'] # where the control scripts are going to live
         
         # set any default options that we might need later in the recipe
+        self.options.setdefault('control-script', 'django')  # the name of the project manage.py that is created in bin-directory
         self.options.setdefault('settings', 'settings') # which settings file to use
         self.options.setdefault('wsgi', 'false') # whether to generate a wsgi file
         
@@ -76,7 +77,13 @@ class Recipe(object):
         # we need to add the project to the working set so we can import from it
         # so we're adding it's directory as an extra_path, as egg installing it doesn't seem to be much success
         # install the project script ('manage.py')
-        easy_install.scripts([('django', 'django.core.management', 'execute_manager')], ws, sys.executable, path, arguments='settings', initialization="import %s as settings" % (self.options['settings']), extra_paths = [os.path.realpath(project_dir)])
+        easy_install.scripts([(self.options['control-script'], 'django.core.management', 'execute_manager')], ws, sys.executable, path, arguments='settings', initialization="import %s as settings" % (self.options['settings']), extra_paths = [os.path.realpath(project_dir)])
+        
+        # install the wsgi script if required
+        if self.options['wsgi'].lower() == 'true':
+            wsgi_name = '%s.%s' % (self.options['control-script'], 'wsgi') # the name of the wsgi script that will end up in bin-directory
+            # instal the wsgi script
+            easy_install.scripts([(wsgi_name, 'isotoma.recipe.django.wsgi', 'main')], ws, sys.executable, path, arguments='settings', initialization="import %s as settings" % (self.options['settings']), extra_paths = [os.path.realpath(project_dir)])
         
         # add the created scripts to the buildout installed stuff, so they get removed correctly
         self.options.created(os.path.join(path, 'django-admin'))
