@@ -1,1 +1,3 @@
 include CHANGES.txt
+include isotoma/recipe/django/templates/*.tmpl
+
