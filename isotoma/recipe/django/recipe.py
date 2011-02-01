@@ -69,8 +69,15 @@ class Recipe(object):
             self.buildout["buildout"]["eggs-directory"],
             ]
         
+        # calculate the eggs that we need to install
+        eggs_to_install = ["isotoma.recipe.django"]
+        for egg in self.options['eggs'].split('\n'):
+            e = egg.strip()
+            if not e == "":
+                eggs_to_install.append(e)
+        
         # use the working set to correctly create the scripts with the correct python path
-        ws = easy_install.working_set(["isotoma.recipe.django"], sys.executable, egg_paths)
+        ws = easy_install.install(eggs_to_install,self.buildout["buildout"]["eggs-directory"])
         easy_install.scripts([('django-admin', "django.core.management", "execute_from_command_line")], ws, sys.executable, path)
         
         # this is a bit nasty
@@ -83,7 +90,11 @@ class Recipe(object):
         if self.options['wsgi'].lower() == 'true':
             wsgi_name = '%s.%s' % (self.options['control-script'], 'wsgi') # the name of the wsgi script that will end up in bin-directory
             # instal the wsgi script
+            # we need to reset the template, as we need a custom script, rather than the standard buildout one
+            _script_template = zc.buildout.easy_install.script_template # store the old one
+            zc.buildout.easy_install.script_template = zc.buildout.easy_install.script_header + open(os.path.join(os.path.dirname(__file__), 'templates/wsgi.tmpl')).read() # set our new template
             easy_install.scripts([(wsgi_name, 'isotoma.recipe.django.wsgi', 'main')], ws, sys.executable, path, arguments='settings', initialization="import %s as settings" % (self.options['settings']), extra_paths = [os.path.realpath(project_dir)])
+            zc.buildout.easy_install.script_template = _script_template
         
         # add the created scripts to the buildout installed stuff, so they get removed correctly
         self.options.created(os.path.join(path, 'django-admin'))
