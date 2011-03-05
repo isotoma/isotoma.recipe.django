@@ -1,7 +1,0 @@
-Quality Plan - Doug
-Move stories to TEMPLATE.odt and give stories ids.
-Wireframes - need reviewing when from Gwilym.
-RTM - Story ID against test script.
-Test Script - Test for every requirement
-ORA - Reivew with ops.
-Service Specification - review existing ones, and create one for this project
