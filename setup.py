@@ -2,7 +2,7 @@ import os
 
 from setuptools import setup, find_packages
 
-version = '2.0.8'
+version = '3.0.0'
 
 def read_file(name):
     return open(os.path.join(os.path.dirname(__file__),
@@ -33,7 +33,7 @@ setup(name='isotoma.recipe.django',
       install_requires=[
         'zc.buildout',
         'zc.recipe.egg',
-        'django',
+        'Django',
         'jinja2'
       ],
       entry_points="""
