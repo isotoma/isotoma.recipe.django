@@ -81,7 +81,7 @@ class Recipe(object):
             # we need to reset the template, as we need a custom script, rather than the standard buildout one
             _script_template = zc.buildout.easy_install.script_template # store the old one
             zc.buildout.easy_install.script_template = zc.buildout.easy_install.script_header + open(os.path.join(os.path.dirname(__file__), 'templates/wsgi.tmpl')).read() # set our new template
-            easy_install.scripts([(wsgi_name, 'isotoma.recipe.django.wsgi', 'main')], ws, sys.executable, path, arguments='settings', initialization="import %s as settings" % (self.options['settings']), extra_paths = [os.path.realpath(project_dir)])
+            easy_install.scripts([(wsgi_name, 'isotoma.recipe.django.wsgi', 'main')], ws, sys.executable, path, arguments='settings', initialization="import %s.%s as settings" % (self.options['project'], self.options['settings']), extra_paths = [os.path.realpath(project_dir)])
             zc.buildout.easy_install.script_template = _script_template
         
         # add the created scripts to the buildout installed stuff, so they get removed correctly
