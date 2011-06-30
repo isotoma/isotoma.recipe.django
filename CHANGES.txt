@@ -23,7 +23,7 @@ Changes
 -----
 
 - Documentation updated
-- Settings file updated for new version (Django 1.2 multi-database style settings)
+3.0.2 (2011-06-30)
 - Adds apps to installed apps in the settings
 - Creates a test runner that can run the created apps
 - Creates an initial setup.py for the app
