@@ -23,6 +23,12 @@ Changes
 -----
 
 - Documentation updated
+3.0.3 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
 3.0.2 (2011-06-30)
 - Adds apps to installed apps in the settings
 - Creates a test runner that can run the created apps
