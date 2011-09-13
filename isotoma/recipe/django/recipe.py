@@ -45,6 +45,7 @@ class Recipe(object):
         if self.options.has_key("extra-paths"):
             self.extra_paths = [
                 path.strip() for path in self.options["extra-paths"].split("\n")
+                if path.strip()
             ]
         else:
             self.extra_paths = []
