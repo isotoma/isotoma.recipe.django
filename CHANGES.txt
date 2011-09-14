@@ -1,6 +1,24 @@
 Changes
 =======
 
+3.0.3 (2011-09-14)
+------------------
+
+- Fixed extra-paths bug where a blank extra-paths option would add the cwd.
+- Made the recipe PEP-8 compatible.
+
+
+3.0.2 (2011-06-30)
+------------------
+
+- Adds apps to installed apps in the settings
+- Creates a test runner that can run the created apps
+- Creates an initial setup.py for the app
+- Creates a urls.py with sensible defaults, including serving static files in debug mode
+- Creates a settings.py and production.py heirachy, to enable settings overriding
+- Can download django from a specific URL
+- Added extra-paths option to append paths to sys.path in the bin/django* scripts.
+
 2.0.0
 -----
 
@@ -23,19 +41,6 @@ Changes
 -----
 
 - Documentation updated
-3.0.3 (unreleased)
-------------------
-
-- Nothing changed yet.
-
-
-3.0.2 (2011-06-30)
-- Adds apps to installed apps in the settings
-- Creates a test runner that can run the created apps
-- Creates an initial setup.py for the app
-- Creates a urls.py with sensible defaults, including serving static files in debug mode
-- Creates a settings.py and production.py heirachy, to enable settings overriding
-- Can download django from a specific URL
 
 1.0
 ---
