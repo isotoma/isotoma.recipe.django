@@ -8,26 +8,18 @@ from zc.buildout import easy_install
 
 from jinja2 import Template, Environment, PackageLoader
 
-class Recipe(object):
+class Recipe(zc.recipe.egg.Egg):
     """ A buildout recipe to install django, and configure a project """
     
     def __init__(self, buildout, name, options):
         """ Set up the options and paths that we will use later in the recipe """
+        super(Recipe, self).__init__(buildout, name, options)
 
         # set up some bits for the buildout to user
         self.log = logging.getLogger(name)
-        self.egg = zc.recipe.egg.Egg(buildout, options["recipe"], options)
-
-        # set the options that we've been passed so we can get them when we install
-        self.buildout = buildout
-        self.name = name
-        self.options = options
-
-        # set the paths that we'll need
 
         # where the control scripts are going to live
         self.options["bin-directory"] = buildout["buildout"]["bin-directory"]
-        # set any default options that we might need later in the recipe
 
         # the name of the project manage.py that is created in bin-directory
         self.options.setdefault("control-script", "django")
@@ -38,7 +30,7 @@ class Recipe(object):
 
         # template environment
         self.template_environment = Environment(
-                loader=PackageLoader("isotoma.recipe.django", "templates")
+            loader=PackageLoader("isotoma.recipe.django", "templates")
         )
 
         # get the extra paths that we might need
@@ -63,30 +55,13 @@ class Recipe(object):
 
         return self.options.created()
 
+
     def install_scripts(self, source_dir, project_dir):
         """ Install the control scripts that we need """
 
-        # get the paths that we need
-        path = self.buildout["buildout"]["bin-directory"]
-        egg_paths = [
-            self.buildout["buildout"]["develop-eggs-directory"],
-            self.buildout["buildout"]["eggs-directory"],
-            ]
-
-        # calculate the eggs that we need to install
-        eggs_to_install = ["isotoma.recipe.django"]
-        for egg in self.options["eggs"].split("\n"):
-            e = egg.strip()
-            if not e == "":
-                eggs_to_install.append(e)
-
         # use the working set to correctly create the scripts with the correct
         # python path
-        ws = easy_install.working_set(
-            eggs_to_install,
-            self.buildout["buildout"]["executable"],
-            egg_paths
-        )
+        ws = self.working_set(extra=('isotoma.recipe.django',))[1]
 
         easy_install.scripts(
             [(
@@ -95,8 +70,8 @@ class Recipe(object):
                 "execute_from_command_line"
             )],
             ws,
-            sys.executable,
-            path,
+            self.options['executable'],
+            self.options['bin-directory'],
             extra_paths = self.extra_paths
         )
 
@@ -113,8 +88,8 @@ class Recipe(object):
                 "execute_manager"
             )],
             ws,
-            sys.executable,
-            path,
+            self.options['executable'],
+            self.options['bin-directory'],
             arguments="settings",
             initialization="import %s.%s as settings" % (
                 self.options["project"],
@@ -148,8 +123,8 @@ class Recipe(object):
                     "main"
                 )],
                 ws,
-                sys.executable,
-                path,
+                self.options['executable'],
+                self.options['bin-directory'],
                 arguments="settings",
                 initialization="import %s.%s as settings" % (
                     self.options["project"],
@@ -160,5 +135,7 @@ class Recipe(object):
             zc.buildout.easy_install.script_template = _script_template
 
         # add the created scripts to the buildout installed stuff, so they get removed correctly
-        self.options.created(os.path.join(path, "django-admin"))
+        self.options.created(
+            os.path.join(self.options['bin-directory'], "django-admin")
+        )
 
