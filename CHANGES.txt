@@ -1,10 +1,12 @@
 Changes
 =======
 
-3.1.0 (unreleased)
+3.1.0 (2011-09-14)
 ------------------
 
-- Nothing changed yet.
+- Eggs were never being installed due to a bug that used the working set in
+  offline mode. Now we inherit from zc.recipe.egg.Egg which gives us a standard
+  working_set method for correctly determining working_set.
 
 3.0.3 (2011-09-14)
 ------------------
