@@ -91,10 +91,7 @@ class Recipe(zc.recipe.egg.Egg):
             self.options['executable'],
             self.options['bin-directory'],
             arguments="settings",
-            initialization="import %s.%s as settings" % (
-                self.options["project"],
-                self.options["settings"]
-            ),
+            initialization=self.initialization(),
             extra_paths = self.extra_paths
         )
 
@@ -126,10 +123,7 @@ class Recipe(zc.recipe.egg.Egg):
                 self.options['executable'],
                 self.options['bin-directory'],
                 arguments="settings",
-                initialization="import %s.%s as settings" % (
-                    self.options["project"],
-                    self.options["settings"]
-                ),
+                initialization=self.initialization(),
                 extra_paths = [project_real_path] + self.extra_paths
             )
             zc.buildout.easy_install.script_template = _script_template
@@ -139,3 +133,17 @@ class Recipe(zc.recipe.egg.Egg):
             os.path.join(self.options['bin-directory'], "django-admin")
         )
 
+    def initialization(self):
+        prefix = ""
+
+        if self.options.get("bin-on-path", False) in ['yes', 'True', 'true']:
+            prefix = "import os\n" \
+                "os.environ['PATH'] = '%s' + os.pathsep + os.environ['PATH']\n" % (
+                    self.options["bin-directory"]
+                )
+
+        return "%simport %s.%s as settings" % (
+                prefix,
+                self.options["project"],
+                self.options["settings"]
+        )
