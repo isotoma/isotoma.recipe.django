@@ -34,7 +34,6 @@ setup(name='isotoma.recipe.django',
         'zc.buildout',
         'zc.recipe.egg',
         'Django',
-        'Jinja2'
       ],
       entry_points="""
       # -*- Entry points: -*-

@@ -6,8 +6,6 @@ from random import choice
 import zc.recipe.egg
 from zc.buildout import easy_install
 
-from jinja2 import Template, Environment, PackageLoader
-
 class Recipe(zc.recipe.egg.Egg):
     """ A buildout recipe to install django, and configure a project """
     
@@ -27,11 +25,6 @@ class Recipe(zc.recipe.egg.Egg):
         self.options.setdefault("settings", "settings")
         # whether to generate a wsgi file
         self.options.setdefault("wsgi", "false")
-
-        # template environment
-        self.template_environment = Environment(
-            loader=PackageLoader("isotoma.recipe.django", "templates")
-        )
 
         # get the extra paths that we might need
         if self.options.has_key("extra-paths"):
