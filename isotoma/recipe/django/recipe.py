@@ -130,7 +130,8 @@ class Recipe(zc.recipe.egg.Egg):
 
         # add the created scripts to the buildout installed stuff, so they get removed correctly
         self.options.created(
-            os.path.join(self.options['bin-directory'], "django-admin")
+            os.path.join(self.options["bin-directory"], "django-admin"),
+            os.path.join(self.options["bin-directory"], "django"),
         )
 
     def initialization(self):
