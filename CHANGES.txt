@@ -6,6 +6,8 @@ Changes
 
 - Buildout now cleans up the django script where necessary.
 - The recipe no longer depends upon Jinja2.
+- Added a buildout configuration and empty project to the recipe as quick dirty
+  recipe test.
 
 
 3.1.1 (2011-09-18)
