@@ -1,7 +1,7 @@
 Changes
 =======
 
-3.1.2 (unreleased)
+3.1.2 (2011-10-06)
 ------------------
 
 - Buildout now cleans up the django script where necessary.
