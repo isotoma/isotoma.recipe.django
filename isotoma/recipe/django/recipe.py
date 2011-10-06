@@ -35,6 +35,19 @@ class Recipe(zc.recipe.egg.Egg):
         else:
             self.extra_paths = []
 
+        # which environment variables to set
+        self.environment_vars = {}
+        for option in self.options.keys():
+            if option.startswith("environment."):
+                self.environment_vars[option[12:]] = self.options[option]
+
+        # Special env-variable case for bin-on-path
+        if self.options.get("bin-on-path", "").lower() in ["true", "yes", "on"]:
+            self.environment_vars["PATH"] = \
+                "'%s' + os.pathsep + os.environ['PATH']\n" % (
+                    self.options["bin-directory"]
+                )
+
     def install(self):
         """ Create and set up the project """
 
@@ -130,14 +143,14 @@ class Recipe(zc.recipe.egg.Egg):
     def initialization(self):
         prefix = ""
 
-        if self.options.get("bin-on-path", False) in ['yes', 'True', 'true']:
-            prefix = "import os\n" \
-                "os.environ['PATH'] = '%s' + os.pathsep + os.environ['PATH']\n" % (
-                    self.options["bin-directory"]
-                )
+        if self.environment_vars:
+            prefix += 'import os\n'
+
+            for var, value in self.environment_vars.iteritems():
+                prefix += "os.environ['%s'] = %s\n" % (var, value)
 
         return "%simport %s.%s as settings" % (
-                prefix,
-                self.options["project"],
-                self.options["settings"]
+            prefix,
+            self.options["project"],
+            self.options["settings"]
         )
