@@ -53,11 +53,17 @@ extra-paths
 wsgi
     Defaults to false. If 'true', create a bin/django.wsgi script that can be
     added to a webserver configuration (using isotoma.recipe.apache for
-    example).
+    example - see below).
 
 eggs
     The eggs that you'd like to make available to your django project.
 
+
+Bugs
+====
+
+This project is actively maintained, and bugs can be reported to
+https://github.com/isotoma/isotoma.recipe.django/issues
 
 Example with isotoma.recipe.apache
 ==================================
