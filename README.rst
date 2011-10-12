@@ -2,8 +2,22 @@
 isotoma.recipe.django
 =====================
 
-This recipe can be used to install Django. It's a whole lot like djangorecipe
-except that Django is treated like a proper egg.
+isotoma.recipe.django can be used to install Django. It's a whole lot like
+djangorecipe except that Django is treated like a proper egg.
+
+This recipe will make three scripts available in your bin/ directory:
+
+bin/django
+    This script works in exactly the same way as the manage.py script found in
+    any typical django project; for example, you can run "bin/django syncdb".
+
+bin/django-admin
+    This script is the equivalent of the project-independent django-admin script
+    available when django is installed using apt or easy_install.
+
+bin/django.wsgi
+    An optional script, created if the wsgi option is set to "true". This script
+    is designed to be called by a web server.
 
 The entire recipe assumes that your project is an egg and any apps contained
 within your project *do not* need to be on sys.path and hence refer to each
