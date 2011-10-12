@@ -67,10 +67,13 @@ environment.foo
     e.g::
     
         environment.celery = "django"
-        environment.foo = "bar"
 
     Used to make more environment variables available to your django project.
-    Any value can be added after the "environment.".
+    Any value can be added after the "environment.". The example above adds::
+    
+        os.environ["celery"] = "django"
+
+    to the django management scripts.
 
 eggs
     The eggs that you'd like to make available to your django project.
