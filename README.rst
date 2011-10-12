@@ -56,6 +56,22 @@ wsgi
     added to a webserver configuration (using isotoma.recipe.apache for
     example - see below).
 
+bin-on-path
+    This feature appends the buildout bin/ directory to os.environ['PATH'] so
+    that your django project will have access to the buildout executables.
+    For example, this might be useful if you install sphinx in your buildout
+    build and want access to the sphinx executables from within django (as is
+    the case in the readthedocs.org project).
+
+environment.foo
+    e.g::
+    
+        environment.celery = "django"
+        environment.foo = "bar"
+
+    Used to make more environment variables available to your django project.
+    Any value can be added after the "environment.".
+
 eggs
     The eggs that you'd like to make available to your django project.
 
