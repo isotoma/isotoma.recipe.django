@@ -60,6 +60,7 @@ settings
     create a settings.py containing development settings, and a production.py
     importing the development settings and overriding them where necessary.
     That way you just need to change this value from "settings" to "production".
+    Defaults to "settings".
 
 extra-paths
     Any extra paths to add to sys.path that should be made available to your
@@ -88,6 +89,11 @@ environment.foo
         os.environ["celery"] = "django"
 
     to the django management scripts.
+
+control-script
+    The name of the main management script. Defaults to "django" so if your
+    buildout:bin-directory = "bin" (as is the default), your management script
+    will be located at "bin/django", and your wsgi script at "bin/django.wsgi".
 
 eggs
     The eggs that you'd like to make available to your django project.
