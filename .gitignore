@@ -1,0 +1,8 @@
+.installed.cfg
+bin/
+develop-eggs/
+dist/
+eggs/
+*.egg-info
+parts/
+test/test_project.egg-info/
