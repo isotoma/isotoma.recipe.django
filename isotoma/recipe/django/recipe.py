@@ -157,3 +157,5 @@ class Recipe(zc.recipe.egg.Egg):
             self.options["project"],
             self.options["settings"]
         )
+
+    update = install
