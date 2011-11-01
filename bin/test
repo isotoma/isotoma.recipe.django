@@ -1,0 +1,7 @@
+#! /bin/bash
+set -e
+
+bin/django --version
+bin/django validate
+bin/django syncdb --noinput --traceback
+

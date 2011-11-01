@@ -6,3 +6,4 @@ eggs/
 *.egg-info
 parts/
 test/test_project.egg-info/
+*.pyc
