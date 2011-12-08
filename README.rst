@@ -99,6 +99,19 @@ control-script
 eggs
     The eggs that you'd like to make available to your django project.
 
+extra-settings
+    Provide a set of extra settings to override the django settings in your
+    project, e.g.::
+
+        extra-settings =
+            DATABASES['default']['USER'] = 'username'
+            DATABASES['default']['PASSWORD'] = 'password'
+
+    A settings file made up of your project settings and the extra settings is
+    then compiled in parts, added to the sys.path, then set as the django
+    settings environment variable in the generated control script in your
+    bin-directory.
+
 Bugs
 ====
 
