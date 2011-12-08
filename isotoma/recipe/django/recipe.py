@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-from random import choice
+import textwrap
 
 import zc.recipe.egg
 from zc.buildout import easy_install
@@ -47,6 +47,74 @@ class Recipe(zc.recipe.egg.Egg):
                 "'%s' + os.pathsep + os.environ['PATH']\n" % (
                     self.options["bin-directory"]
                 )
+
+        self.settings_import = "import %s.%s as settings" % (
+            self.options["project"],
+            self.options["settings"]
+        )
+
+        extra_settings = self.options.get("extra-settings", None)
+        if extra_settings:
+            self.configure_extra_settings(extra_settings)
+
+    def configure_extra_settings(self, extra_settings):
+        """Create a directory in parts containing a settings module that, in
+        an generated settings file imports * from the project settings then
+        adds the extra-settings string to the file. Then add the directory to
+        sys.path and ensure that the initialization string imports from the new
+        settings file"""
+
+        EXTRA_SETTINGS_TEMPLATE = textwrap.dedent("""\
+        from %(project)s.%(project_settings)s import *
+
+        %(extra_settings)s
+        """)
+
+        # Create a settings directory to add to sys.path in parts-directory.
+        container_dir = os.path.join(
+            self.buildout["buildout"]["parts-directory"],
+            self.name
+        )
+        module_name = "%s_extrasettings" % self.name
+        settings_name = "settings"
+
+        settings_dir = os.path.join(container_dir, module_name)
+        init_filepath = os.path.join(settings_dir, "__init__.py")
+        settings_filepath = os.path.join(settings_dir, "%s.py" % settings_name)
+
+        if not os.path.exists(container_dir):
+            os.mkdir(container_dir, 0755)
+
+        if not os.path.exists(settings_dir):
+            os.mkdir(settings_dir, 0755)
+
+        if not os.path.exists(init_filepath):
+            open(init_filepath, "w").close()
+
+        settings_file = open(settings_filepath, "w")
+
+        settings_file.write(EXTRA_SETTINGS_TEMPLATE % {
+            "project": self.options["project"],
+            "project_settings": self.options["settings"],
+            "extra_settings": self.options["extra-settings"],
+        })
+        settings_file.close()
+
+        # Set the new import line
+        self.settings_import = "import %s.%s as settings" % (
+            module_name,
+            settings_name
+        )
+
+        # Add the new settings directory to sys.path
+        self.extra_paths.append(container_dir)
+
+        self.options.created(
+            container_dir,
+            settings_dir,
+            init_filepath,
+            settings_filepath,
+        )
 
     def install(self):
         """ Create and set up the project """
@@ -134,7 +202,8 @@ class Recipe(zc.recipe.egg.Egg):
             )
             zc.buildout.easy_install.script_template = _script_template
 
-        # add the created scripts to the buildout installed stuff, so they get removed correctly
+        # add the created scripts to the buildout installed stuff, so they get
+        # removed correctly
         self.options.created(
             os.path.join(self.options["bin-directory"], "django-admin"),
             os.path.join(
@@ -152,10 +221,9 @@ class Recipe(zc.recipe.egg.Egg):
             for var, value in self.environment_vars.iteritems():
                 prefix += "os.environ['%s'] = %s\n" % (var, value)
 
-        return "%simport %s.%s as settings" % (
+        return "%s%s" % (
             prefix,
-            self.options["project"],
-            self.options["settings"]
+            self.settings_import,
         )
 
     update = install
