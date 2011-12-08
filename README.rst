@@ -121,9 +121,15 @@ https://github.com/isotoma/isotoma.recipe.django/issues
 Example with isotoma.recipe.apache
 ==================================
 
-This example shows how isotoma.recipe.django and isotoma.recipe.apache can be
-combined to create the wsgi script and an apache configuration that can run
-that script. The generated apache config simply needs to be symlinked into
+This example shows how
+
+ - isotoma.recipe.django,
+ - `isotoma.recipe.apache <http://pypi.python.org/pypi/isotoma.recipe.apache>`_
+ - `isotoma.recipe.facts <http://pypi.python.org/pypi/isotoma.recipe.facts>`_
+ - `isotoma.recipe.eggpaths <http://pypi.python.org/pypi/isotoma.recipe.eggpaths>`_
+
+can be combined to create the wsgi script and an apache configuration that can
+run that script. The generated apache config simply needs to be symlinked into
 /etc/apache2/sites-available and you're away.
 
 ::
@@ -155,7 +161,7 @@ that script. The generated apache config simply needs to be symlinked into
 
     [apache]
     recipe = isotoma.recipe.apache:wsgi
-    interface = *
+    interface = ${facts:interface.eth0.address}
     sitename = example.com
     serveradmin = webmaster@example.com
     daemon = True
