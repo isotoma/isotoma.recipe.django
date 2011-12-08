@@ -1,10 +1,11 @@
 Changes
 =======
 
-3.1.5 (unreleased)
+3.1.5 (2011-12-08)
 ------------------
 
-- Nothing changed yet.
+- Added an extra-settings option to inject settings lines from our buildout
+  configuration.
 
 
 3.1.4 (2011-10-25)

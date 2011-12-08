@@ -5,7 +5,8 @@ isotoma.recipe.django
 isotoma.recipe.django can be used to install Django. It's a whole lot like
 djangorecipe except that Django is treated like a proper egg.
 
-This recipe will make three scripts available in your bin/ directory:
+This recipe will make three scripts available in your bin/ directory (assuming
+the control-script option is not set):
 
 bin/django
     This script works in exactly the same way as the manage.py script found in
@@ -56,7 +57,7 @@ project
     not exist.
 
 settings
-    The name of the settings file within your project to use, allowing you to
+    The name of the settings file `within your project` to use, allowing you to
     create a settings.py containing development settings, and a production.py
     importing the development settings and overriding them where necessary.
     That way you just need to change this value from "settings" to "production".
@@ -98,6 +99,18 @@ control-script
 eggs
     The eggs that you'd like to make available to your django project.
 
+extra-settings
+    Provide a set of extra settings to override the django settings in your
+    project, e.g.::
+
+        extra-settings =
+            DATABASES['default']['USER'] = 'username'
+            DATABASES['default']['PASSWORD'] = 'password'
+
+    A settings file made up of your project settings and the extra settings is
+    then compiled in parts, added to the sys.path, then set as the django
+    settings environment variable in the generated control script in your
+    bin-directory.
 
 Bugs
 ====
