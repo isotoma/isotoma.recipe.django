@@ -53,9 +53,7 @@ class Recipe(zc.recipe.egg.Egg):
             self.options["settings"]
         )
 
-        extra_settings = self.options.get("extra-settings", None)
-        if extra_settings:
-            self.configure_extra_settings(extra_settings)
+        self.extra_settings = self.options.get("extra-settings", None)
 
     def configure_extra_settings(self, extra_settings):
         """Create a directory in parts containing a settings module that, in
@@ -118,6 +116,8 @@ class Recipe(zc.recipe.egg.Egg):
 
     def install(self):
         """ Create and set up the project """
+        if self.extra_settings:
+            self.configure_extra_settings(self.extra_settings)
 
         # the base directory for the installed files
         base_dir = self.buildout["buildout"]["directory"] 
