@@ -146,6 +146,12 @@ that script. The generated apache config simply needs to be symlinked into
 
     [eggpaths]
     recipe = isotoma.recipe.eggpaths
+    eggs =
+        Django
+        foo
+
+    [facts]
+    recipe = isotoma.recipe.facts
 
     [apache]
     recipe = isotoma.recipe.apache:wsgi
@@ -153,14 +159,15 @@ that script. The generated apache config simply needs to be symlinked into
     sitename = example.com
     serveradmin = webmaster@example.com
     daemon = True
-    user = ${django:project}
+    user = ${facts:user.name}
     group = ${:user}
-    processgroup = ${:user}
+    processgroup = ${django:project}
     processes = 5
     threads = 10
     wsgi = django.wsgi
-    static_aliases = /admin/media:${eggpaths:Django}django/contrib/admin/media
-                     /media:${eggpaths:foo}/media
+    static_aliases = /admin/media:${eggpaths:Django}/django/contrib/admin/media
+                     /static:${eggpaths:foo}/foo/static
+                     /media:${buildout:directory}/var/media
 
     [versions]
     Django = 1.3.1
