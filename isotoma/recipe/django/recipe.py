@@ -5,6 +5,9 @@ import textwrap
 
 import zc.recipe.egg
 from zc.buildout import easy_install
+from pkg_resources import parse_version
+
+django_1_5 = parse_version('1.5')
 
 class Recipe(zc.recipe.egg.Egg):
     """ A buildout recipe to install django, and configure a project """
@@ -12,6 +15,8 @@ class Recipe(zc.recipe.egg.Egg):
     def __init__(self, buildout, name, options):
         """ Set up the options and paths that we will use later in the recipe """
         super(Recipe, self).__init__(buildout, name, options)
+
+        self.django_version = parse_version(buildout.get('versions').get('Django').split(' ')[0])
 
         # set up some bits for the buildout to user
         self.log = logging.getLogger(name)
@@ -48,10 +53,16 @@ class Recipe(zc.recipe.egg.Egg):
                     self.options["bin-directory"]
                 )
 
-        self.settings_import = "import %s.%s as settings" % (
-            self.options["project"],
-            self.options["settings"]
-        )
+        if self.django_version >= django_1_5:
+            self.settings_import = "import os\nos.environ.setdefault('DJANGO_SETTINGS_MODULE', '%s.%s')" % (
+                self.options["project"],
+                self.options["settings"]
+            )
+        else:
+            self.settings_import = "import %s.%s as settings" % (
+                self.options["project"],
+                self.options["settings"]
+            )
 
         self.extra_settings = self.options.get("extra-settings", None)
 
@@ -155,16 +166,23 @@ class Recipe(zc.recipe.egg.Egg):
         # doesn't seem to be much success
 
         # install the project script ("manage.py")
+        if self.django_version >= django_1_5:
+            entry_point_module = "django.core.management"
+            entry_point = "execute_from_command_line"
+        else:
+            entry_point_module = "django.core.management"
+            entry_point = "execute_manager"
+
         easy_install.scripts(
             [(
                 self.options["control-script"],
-                "django.core.management",
-                "execute_manager"
+                entry_point_module,
+                entry_point
             )],
             ws,
             self.options['executable'],
             self.options['bin-directory'],
-            arguments="settings",
+            arguments="sys.argv",
             initialization=self.initialization(),
             extra_paths = self.extra_paths
         )
