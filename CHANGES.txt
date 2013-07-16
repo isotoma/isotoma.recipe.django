@@ -1,7 +1,7 @@
 Changes
 =======
 
-3.1.6 (unreleased)
+3.1.6 (2013-07-16)
 ------------------
 
 - Create bin/django in 1.5+ style where appropriate
