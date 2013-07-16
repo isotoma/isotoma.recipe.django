@@ -169,9 +169,11 @@ class Recipe(zc.recipe.egg.Egg):
         if self.django_version >= django_1_5:
             entry_point_module = "django.core.management"
             entry_point = "execute_from_command_line"
+            arguments = "sys.argv"
         else:
             entry_point_module = "django.core.management"
             entry_point = "execute_manager"
+            arguments = "settinggs"
 
         easy_install.scripts(
             [(
@@ -182,7 +184,7 @@ class Recipe(zc.recipe.egg.Egg):
             ws,
             self.options['executable'],
             self.options['bin-directory'],
-            arguments="sys.argv",
+            arguments=arguments,
             initialization=self.initialization(),
             extra_paths = self.extra_paths
         )
