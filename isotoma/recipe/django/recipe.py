@@ -173,7 +173,7 @@ class Recipe(zc.recipe.egg.Egg):
         else:
             entry_point_module = "django.core.management"
             entry_point = "execute_manager"
-            arguments = "settinggs"
+            arguments = "settings"
 
         easy_install.scripts(
             [(
