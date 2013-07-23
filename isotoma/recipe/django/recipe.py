@@ -207,16 +207,24 @@ class Recipe(zc.recipe.egg.Egg):
 
             project_real_path = os.path.realpath(project_dir)
 
+            if self.django_version >= django_1_5:
+                entry_point_module = "django.core.wsgi"
+                entry_point = "get_wsgi_application"
+                arguments = ""
+            else:
+                entry_point_module = "isotoma.recipe.django.wsgi"
+                entry_point = "main"
+                arguments = "settings"
             easy_install.scripts(
                 [(
                     wsgi_name,
-                    "isotoma.recipe.django.wsgi",
-                    "main"
+                    entry_point_module,
+                    entry_point
                 )],
                 ws,
                 self.options['executable'],
                 self.options['bin-directory'],
-                arguments="settings",
+                arguments=arguments,
                 initialization=self.initialization(),
                 extra_paths = [project_real_path] + self.extra_paths
             )
