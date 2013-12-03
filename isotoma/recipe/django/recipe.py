@@ -166,25 +166,16 @@ class Recipe(zc.recipe.egg.Egg):
         # doesn't seem to be much success
 
         # install the project script ("manage.py")
-        if self.django_version >= django_1_5:
-            entry_point_module = "django.core.management"
-            entry_point = "execute_from_command_line"
-            arguments = "sys.argv"
-        else:
-            entry_point_module = "django.core.management"
-            entry_point = "execute_manager"
-            arguments = "settings"
-
         easy_install.scripts(
             [(
                 self.options["control-script"],
-                entry_point_module,
-                entry_point
+                "django.core.management",
+                "execute_from_command_line"
             )],
             ws,
             self.options['executable'],
             self.options['bin-directory'],
-            arguments=arguments,
+            arguments="sys.argv",
             initialization=self.initialization(),
             extra_paths = self.extra_paths
         )
