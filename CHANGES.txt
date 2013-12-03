@@ -1,7 +1,7 @@
 Changes
 =======
 
-3.1.7 (unreleased)
+3.1.7 (2013-12-03)
 ------------------
 
 - Use new style for wsgi and manage.py for all versions - works for 1.4+
